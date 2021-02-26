@@ -1,4 +1,4 @@
-name: CI
+name: Take a snapshot to push an image tag
 
 on:
   # Allows you to run this workflow manually from the Actions tab
