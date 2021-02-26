@@ -149,6 +149,15 @@ app.get(
 );
 
 app.get(
+  '/os',
+  handleErrors(async function(_req, res) {
+    const si = require('systeminformation');
+    const data = await si.osInfo();
+    res.json(data);
+  })
+);
+
+app.get(
   '/notes/:id',
   handleErrors(async function(req, res) {
     const {rows} = await pool.query('select * from notes where id = $1', [
