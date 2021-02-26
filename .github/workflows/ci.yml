@@ -33,7 +33,7 @@ jobs:
     - name: Build
       run: |-
         docker build \
-          --tag "ghcr.io/vxavictor513/server-components-demo" \
+          --tag "ghcr.io/vxavictor513/server-components-demo:latest" \
           .
 
     # Push the Docker image to GitHub Container Registry
@@ -55,7 +55,7 @@ jobs:
       env:
         KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG_DATA }}
       with:
-        command: helm upgrade -i server-components-demo ./helm
+        command: helm upgrade -i server-components-demo ./helm --set image.tag=latest
 
     - name: Verify deployment
       uses: qazz92/kubectl@1.0.3
