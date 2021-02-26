@@ -158,6 +158,24 @@ app.get(
 );
 
 app.get(
+  '/currentLoad',
+  handleErrors(async function(_req, res) {
+    const si = require('systeminformation');
+    const data = await si.currentLoad();
+    res.json(data);
+  })
+);
+
+app.get(
+  '/mem',
+  handleErrors(async function(_req, res) {
+    const si = require('systeminformation');
+    const data = await si.mem();
+    res.json(data);
+  })
+);
+
+app.get(
   '/notes/:id',
   handleErrors(async function(req, res) {
     const {rows} = await pool.query('select * from notes where id = $1', [

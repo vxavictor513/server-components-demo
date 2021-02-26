@@ -14,6 +14,9 @@ import SidebarNote from './SidebarNote';
 export default function NoteList({searchText}) {
   const notes = fetch('http://localhost:4000/notes').json();
   const osData = fetch('http://localhost:4000/os').json();
+  const currentLoad = fetch('http://localhost:4000/currentLoad').json();
+  const memData = fetch('http://localhost:4000/mem').json();
+  const memPercent = 100 - memData.free / memData.total * 100;
 
   // WARNING: This is for demo purposes only.
   // We don't encourage this in real apps. There are far safer ways to access
@@ -37,6 +40,8 @@ export default function NoteList({searchText}) {
       <p>Distro: {osData.distro}</p>
       <p>Release: {osData.release}</p>
       <p>Xendit - Trial - Wai Loon - {startDate} - {currentDate}</p>
+      <p>CPU Usage: {currentLoad.currentLoad}%</p>
+      <p>Memory Usage: {memPercent}%</p>
       <ul className="notes-list">
         {notes.map((note) => (
           <li key={note.id}>
