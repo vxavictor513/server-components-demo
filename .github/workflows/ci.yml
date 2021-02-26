@@ -25,6 +25,14 @@ jobs:
         files: '["credentials.js"]'
       env:
         DB_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
+        
+    - name: Docker Login
+      uses: docker/login-action@v1.8.0
+      with:
+        registry: ghcr.io
+        username: vxavictor513
+        password: ${{ secrets.GHCR_TOKEN }}
+        logout: true  
 
     # Build the Docker image
     - name: Build
