@@ -32,7 +32,7 @@ jobs:
       env:
         KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG_DATA }}
       with:
-        command: helm upgrade -i server-components-demo ./helm --set image.tag
+        command: helm upgrade -i server-components-demo ./helm --set image.tag=${{ github.event.inputs.imageTag }}
 
     - name: Verify deployment
       uses: qazz92/kubectl@1.0.3
