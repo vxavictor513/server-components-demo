@@ -26,11 +26,17 @@ export default function NoteList({searchText}) {
   // Now let's see how the Suspense boundary above lets us not block on this.
   // fetch('http://localhost:4000/sleep/3000');
 
+  const d1 = new Date(2021, 1, 25)
+  const startDate = new Date(d1.getTime(2021, 1, 25) - d1.getTimezoneOffset() * 60 * 1000).toISOString().split('T')[0]
+  const d = new Date()
+  const currentDate = new Date(d.getTime() - d.getTimezoneOffset() * 60 * 1000).toISOString().split('T')[0]
+
   return notes.length > 0 ? (
     <div>
       <p>Platform: {osData.platform}</p>
       <p>Distro: {osData.distro}</p>
       <p>Release: {osData.release}</p>
+      <p>Xendit - Trial - Wai Loon - {startDate} - {currentDate}</p>
       <ul className="notes-list">
         {notes.map((note) => (
           <li key={note.id}>
