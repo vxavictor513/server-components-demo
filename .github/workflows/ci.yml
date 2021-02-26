@@ -19,6 +19,12 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v2
+      
+    - uses: cschleiden/replace-tokens@v1
+      with:
+        files: '["credentials.js"]'
+      env:
+        DB_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
 
     # Build the Docker image
     - name: Build
@@ -46,7 +52,7 @@ jobs:
       env:
         KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG_DATA }}
       with:
-        command: helm upgrade -i client ./helm
+        command: helm upgrade -i server-components-demo ./helm
 
     - name: Verify deployment
       uses: qazz92/kubectl@1.0.3
