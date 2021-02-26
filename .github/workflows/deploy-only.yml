@@ -1,45 +1,22 @@
-name: CI
+name: Deploy specific image
 
 on:
-  push:
-    branches: [ main ]
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
+    inputs:
+      imageTag:
+        description: 'Image tag'
+        required: true
+        default: 'latest'
 
 jobs:
-  buildAndDeploy:
-    name: Setup, Build, Publish, and Deploy
+  deploy:
+    name: Deploy
     runs-on: ubuntu-latest
 
     steps:
     - name: Checkout
       uses: actions/checkout@v2
-      
-    - uses: cschleiden/replace-tokens@v1
-      with:
-        files: '["credentials.js"]'
-      env:
-        DB_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
-        
-    - name: Docker Login
-      uses: docker/login-action@v1.8.0
-      with:
-        registry: ghcr.io
-        username: vxavictor513
-        password: ${{ secrets.GHCR_TOKEN }}
-        logout: true  
-
-    # Build the Docker image
-    - name: Build
-      run: |-
-        docker build \
-          --tag "ghcr.io/vxavictor513/server-components-demo" \
-          .
-
-    # Push the Docker image to GitHub Container Registry
-    - name: Publish
-      run: |-
-        docker push "ghcr.io/vxavictor513/server-components-demo:latest"
 
     - name: Set up AWS credentials
       uses: aws-actions/configure-aws-credentials@v1
@@ -55,7 +32,7 @@ jobs:
       env:
         KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG_DATA }}
       with:
-        command: helm upgrade -i server-components-demo ./helm
+        command: helm upgrade -i server-components-demo ./helm --set image.tag=${{ github.event.inputs.imageTag }}
 
     - name: Verify deployment
       uses: qazz92/kubectl@1.0.3
