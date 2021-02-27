@@ -146,6 +146,10 @@ app.delete(
 app.get(
   '/notes',
   handleErrors(async function(_req, res) {
+    await pool.query(
+      `INSERT INTO logs (timestamp, message) values ($1, $2)`,
+      [new Date(), "Someone is accessing the homepage!"]
+    );
     const {rows} = await pool.query('select * from notes order by id desc');
     res.json(rows);
   })

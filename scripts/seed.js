@@ -35,6 +35,11 @@ const createTableStatement = `CREATE TABLE notes (
   title TEXT,
   body TEXT
 );`;
+const createLogTableStatement = `CREATE TABLE logs (
+  id SERIAL PRIMARY KEY,
+  timestamp TIMESTAMP NOT NULL,
+  message TEXT
+);`;
 const insertNoteStatement = `INSERT INTO notes(title, body, created_at, updated_at)
   VALUES ($1, $2, $3, $3)
   RETURNING *`;
@@ -64,6 +69,7 @@ notes in this app! These note live on the server in the \`notes\` folder.
 async function seed() {
   await pool.query(dropTableStatement);
   await pool.query(createTableStatement);
+  await pool.query(createLogTableStatement);
   const res = await Promise.all(
     seedData.map((row) => pool.query(insertNoteStatement, row))
   );

@@ -22,6 +22,9 @@ export default function NoteList({searchText}) {
   const memoryUsage = parsePrometheusTextFormat(metricsData).find(x => x.name == 'process_resident_memory_bytes').metrics[0].value;
   const b2s=t=>{let e=Math.log2(t)/10|0;return(t/1024**(e=e<=0?0:e)).toFixed(3)+"BKMGP"[e]};
 
+  const loggingTimestamp = new Date();
+  console.log(loggingTimestamp + " Someone is accessing the homepage!")
+
   // WARNING: This is for demo purposes only.
   // We don't encourage this in real apps. There are far safer ways to access
   // data in a real application!
