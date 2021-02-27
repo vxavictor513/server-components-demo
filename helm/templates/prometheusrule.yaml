@@ -1,0 +1,35 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: {{ include "server-components-demo.name" . }}
+  labels:
+    app.kubernetes.io/name: {{ include "server-components-demo.name" . }}
+    helm.sh/chart: {{ include "server-components-demo.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    release: "prometheus"
+    app: "kube-prometheus-stack"
+{{- with .Values.service.annotations }}
+  annotations:
+  {{- toYaml . | nindent 4 }}
+{{- end }}
+spec:
+  groups:
+  - name: server-components-demo.rules
+    rules:
+    - alert: TargetDown
+      annotations:
+        description: 'Targets are down.'
+        summary: Targets are down
+      expr: up{job="server-components-demo"} == 0
+      for: 10s
+      labels:
+        severity: warning
+    # - alert: DeadMansSwitch-serviceprom
+    #   annotations:
+    #     description: This is a DeadMansSwitch meant to ensure that the entire Alerting
+    #       pipeline is functional.
+    #     summary: Alerting DeadMansSwitch
+    #   expr: vector(1)
+    #   labels:
+    #     severity: none
