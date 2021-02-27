@@ -27,6 +27,9 @@ const path = require('path');
 const {Pool} = require('pg');
 const React = require('react');
 const ReactApp = require('../src/App.server').default;
+const si = require('systeminformation');
+const k8s = require('@kubernetes/client-node');
+const prom = require('prom-client')
 
 // Don't keep credentials in the source tree in a real app!
 const pool = new Pool(require('../credentials'));
@@ -151,7 +154,6 @@ app.get(
 app.get(
   '/os',
   handleErrors(async function(_req, res) {
-    const si = require('systeminformation');
     const data = await si.osInfo();
     res.json(data);
   })
@@ -160,7 +162,6 @@ app.get(
 app.get(
   '/currentLoad',
   handleErrors(async function(_req, res) {
-    const si = require('systeminformation');
     const data = await si.currentLoad();
     res.json(data);
   })
@@ -169,11 +170,42 @@ app.get(
 app.get(
   '/mem',
   handleErrors(async function(_req, res) {
-    const si = require('systeminformation');
     const data = await si.mem();
     res.json(data);
   })
 );
+
+app.get(
+  '/k8s',
+  handleErrors(async function(_req, res) {
+    const kc = new k8s.KubeConfig();
+    kc.loadFromDefault();
+    const k8sApi = kc.makeApiClient(k8s.CoreV1Api);
+    k8sApi.listPodForAllNamespaces()
+      .then((obj) => res.json(obj))
+      .catch((err) => console.log(err));
+  })
+);
+
+const collectDefaultMetrics = prom.collectDefaultMetrics;
+const Registry = prom.Registry;
+const promRegister = new Registry();
+promRegister.setDefaultLabels({
+  app: 'server-components-demo'
+})
+collectDefaultMetrics({
+  gcDurationBuckets: [0.001, 0.01, 0.1, 1, 2, 5], // These are the default buckets.
+  timeout: 1000,
+  register: promRegister
+});
+app.get('/metrics', async (req, res) => {
+  try {
+    res.set('Content-Type', promRegister.contentType);
+    res.end(await promRegister.metrics());
+  } catch (ex) {
+    res.status(500).end(ex);
+  }
+});
 
 app.get(
   '/notes/:id',

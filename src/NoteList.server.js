@@ -10,13 +10,17 @@ import {fetch} from 'react-fetch';
 
 import {db} from './db.server';
 import SidebarNote from './SidebarNote';
+import parsePrometheusTextFormat from 'parse-prometheus-text-format';
 
 export default function NoteList({searchText}) {
   const notes = fetch('http://localhost:4000/notes').json();
   const osData = fetch('http://localhost:4000/os').json();
   const currentLoad = fetch('http://localhost:4000/currentLoad').json();
-  const memData = fetch('http://localhost:4000/mem').json();
-  const memPercent = 100 - memData.free / memData.total * 100;
+  // const memData = fetch('http://localhost:4000/mem').json();
+  // const memPercent = 100 - memData.free / memData.total * 100;
+  const metricsData = fetch('http://localhost:4000/metrics').text();
+  const memoryUsage = parsePrometheusTextFormat(metricsData).find(x => x.name == 'process_resident_memory_bytes').metrics[0].value;
+  const b2s=t=>{let e=Math.log2(t)/10|0;return(t/1024**(e=e<=0?0:e)).toFixed(3)+"BKMGP"[e]};
 
   // WARNING: This is for demo purposes only.
   // We don't encourage this in real apps. There are far safer ways to access
@@ -41,7 +45,7 @@ export default function NoteList({searchText}) {
       <p>Release: {osData.release}</p>
       <p>Xendit - Trial - Wai Loon - {startDate} - {currentDate}</p>
       <p>CPU Usage: {currentLoad.currentLoad}%</p>
-      <p>Memory Usage: {memPercent}%</p>
+      <p>Memory Usage: {b2s(memoryUsage)}b</p>
       <ul className="notes-list">
         {notes.map((note) => (
           <li key={note.id}>
